@@ -36,7 +36,8 @@ if (len(li)==5):
     apk_name = li[1]
     stimulus_type = li[2]
     rot_numbers = int(li[3])
-    sam_numbers = int(li[4])
+    WAIT_TIME = int(li[4])
+    sam_numbers = 1
 else: #Se non sono stati specificati parametri setto quelli di default.
     print("WARNING. Working on default value parameters.")
     DEVICE="emulator-5554" #Di default il device è l'emulatore
@@ -187,6 +188,11 @@ try:
 
          #Forzo una Garbage Collection
          garbage_collector(gc_log,package)
+         time.sleep(WAIT_TIME)
+
+         #Forzo una Garbage Collection
+         garbage_collector(gc_log,package)
+         time.sleep(WAIT_TIME)
 
          #Effettuo un Dump della memoria heap dell'app
          print("Dumping heap (Before)")
@@ -230,17 +236,13 @@ try:
          garbage_collector(gc_log,package)
          print("Dumping heap (After Garbage Collection)")
          cmd = "adb -s "+DEVICE+" shell am dumpheap "+package+" /data/local/tmp/"+package+"_afterGC_"+a_name+".hprof"
-         result = os.popen(cmd).read()		 
+         result = os.popen(cmd).read()
          time.sleep(WAIT_TIME)
          cmd = "adb -s "+DEVICE+" pull /data/local/tmp/"+package+"_afterGC_"+a_name+".hprof " + destination_path
          result = os.popen(cmd).read()
          dump_log.append(datetime.now().strftime("%H:%M:%S.%f")+" Dump Heap (After GC).\n")
          time.sleep(WAIT_TIME)
-         hprof_file = convert_hprof(destination_path+package+"_afterGC_"+a_name)
-		 #convert_hprof(destination_path+package+"_afterGC_"+a_name)
-         #make_histogram(destination_path+package+"_afterGC_"+a_name+"_conv.hprof",package,a_name,99)
-         make_histogram(hprof_file,package,a_name,99)
-
+         convert_hprof(destination_path+"/"+package+"_afterGC_"+a_name)
 
          #Cancello i file hprof dalla memoria del dispositivo
          cmd = "adb -s "+DEVICE+" shell rm -r /data/local/tmp/"+package+"_before_"+a_name+".hprof"
@@ -363,7 +365,8 @@ try:
     os.remove("logcat.txt")  
 except:
     print("[ERROR DELETING TEMPORARY FILES] Error."+str(sys.exc_info()[0]))
-     
+
+os.rename("Results/"+package,"Results/"+package+"_"+stimulus_type+"_N"+str(rot_numbers)+"_t"+str(WAIT_TIME)+"_"+str(int(time.time())))	
 print("Execution completed. You can find results in Results/ folder")
 # Raffaele Sellitto. 02/01/2018. 
 

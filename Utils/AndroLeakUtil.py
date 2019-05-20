@@ -32,7 +32,9 @@ def log_error(log,a_name,had_errors,crash_note):
 #Funzione che effettua un dump della memoria heap dell'applicazione
 def make_dump(package,a_name,count,destination_path,dump_log):
     print("Dumping heap (After "+str(count+1)+")")
+    time.sleep(WAIT_TIME)
     hprof_file_name = package+"_"+str(count+1)+"_after_"+a_name
+    print("adb -s "+DEVICE+" shell am dumpheap "+package+" /data/local/tmp/"+hprof_file_name+".hprof")
     cmd = "adb -s "+DEVICE+" shell am dumpheap "+package+" /data/local/tmp/"+hprof_file_name+".hprof"
     result = os.popen(cmd).read()
     dump_log.append(datetime.now().strftime("%H:%M:%S.%f")+" Dump Heap (After "+str(count+1)+").\n")
@@ -77,7 +79,7 @@ def garbage_collector(gc_log,package):
 def get_gc_logs(logcat_file,gc_log):
     line_marker = "GC freed"
     try:
-        file = open(logcat_file)
+        file = open(logcat_file,'r', encoding='utf-8')
         for line in file:
             if line_marker in line:
                 gc_log.append(line)
@@ -104,8 +106,8 @@ def make_difference(destination_path,package,a_name,i):
              csv_file2="Difference_snapshot_Results_"+package+"_"+a_name+"_"+package+"_afterGC_"+a_name+"_conv.csv"
              shutil.copyfile(csv_file1, destination_path+"Difference_After.csv")
              shutil.copyfile(csv_file2, destination_path+"Difference_AfterGC.csv")
-             #os.remove(csv_file1);
-             #os.remove(csv_file2);
+             os.remove(csv_file1);
+             os.remove(csv_file2);
          else:
              print("Activity closing due Error")
              os.system("adb -s "+DEVICE+" shell input keyevent KEYCODE_HOME")
@@ -119,10 +121,6 @@ def make_histogram(hprof_file,package,a_name,i):
         if (os.path.isfile(hprof_file) and os.path.getsize(hprof_file) > 0): #Checking if the necessary files exist. If not i close the application.
             print("Making Histogram through HprofAnalyzer.jar")
             cmd = "java -jar Utils/HprofAnalyzer.jar "+package+" "+hprof_file
-            print("-------------")
-            print(cmd)
-            print("-------------")
-            #os.system("pause")
             os.system(cmd)
             destination_path="Results/"+package+"/"+a_name+"/";
             if(i>=0): 
@@ -131,9 +129,6 @@ def make_histogram(hprof_file,package,a_name,i):
             elif(i==-1): # Se sono al primo dump il file avrà nome diverso. 
                 csv_file="Histogram_snapshot_Results_"+package+"_"+a_name+"_"+package+"_before_"+a_name+"_conv.csv"
                 shutil.copyfile(csv_file,destination_path+package+"_0_before_"+a_name+"_conv.csv")
-            elif(i==99): # Se sono al primo dump il file avrà nome diverso. 				
-                csv_file="Histogram_snapshot_Results_"+package+"_"+a_name+"_"+package+"_afterGC_"+a_name+"_conv.csv"
-                shutil.copyfile(csv_file,destination_path+package+"_afterGC_"+a_name+"_conv.csv")				
             else:
                 raise ValueError("You are using make_histogram() in a wrong way.")
             os.remove(csv_file)

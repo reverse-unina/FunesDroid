@@ -31,7 +31,8 @@ DEVICE="emulator-5554"
 
 #Function that reboot the emulator.
 def rebootEmulator():
-    os.system("adb -s "+DEVICE+" -e reboot")
+    #os.system("adb -s "+DEVICE+" -e reboot")
+    os.system("emulator -avd "+DEVICE+" -wipe-data")
     time.sleep(5)
     waitDeviceHasBooted()
 
@@ -40,6 +41,7 @@ def waitDeviceHasBooted():
     maxiter=1000; count=0;
     result=os.popen("adb -s "+DEVICE+" shell getprop sys.boot_completed").read()
     while("1" not in result):
+        print("adb -s "+DEVICE+" shell getprop sys.boot_completed")
         result=os.popen("adb -s "+DEVICE+" shell getprop sys.boot_completed").read()
         print("Waiting the Emulator")
         time.sleep(2)
@@ -63,14 +65,15 @@ if(len(li)==2):
         raise SystemExit(0);
     else:
         raise SyntaxError('You are using this command wrongly. Check the syntax (use the option help). ')
-elif(len(li)==4):
+elif(len(li)==5):
     DEVICE = li[1]
     stimulus_type = li[2]
-    num_rotations = int(li[3])
+    num_rotations = int(li[3])	
+    WAIT_TIME = int(li[4])
     sample_size = 1
     REBOOT_TIME = 0
 else:
-    raise SyntaxError('You are using this command wrongly. Check the syntax (use the option help). ')
+    raise SyntaxError(str(len(li))+' You are using this command wrongly. Check the syntax (use the option help). ')
 
 # Input Validation.
 if(sample_size>10000 or sample_size <=0):
@@ -131,7 +134,7 @@ for a in apks_list:
     time.sleep(WAIT_TIME)
     apk_to_execute = "InputAPKs/"+a
     print(apk_to_execute)
-    cmd = "python TestExecutor.py "+DEVICE+" "+apk_to_execute+" "+stimulus_type+" "+str(num_rotations)+" "+str(sample_size)+" "
+    cmd = "python TestExecutor.py "+DEVICE+" "+apk_to_execute+" "+stimulus_type+" "+str(num_rotations)+" "+str(WAIT_TIME)+" "
     os.system(cmd)
     i=i+1
     count=count+1
