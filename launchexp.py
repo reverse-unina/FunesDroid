@@ -3,24 +3,16 @@ import sys
 import shutil
 import time
 
-#starts the emulator from scratch
-def startEmulator():
-    os.popen("emulator -avd leakAVD -wipe-data")
-    time.sleep(50)
-
-#main testing loop
 print("Starting FunesDroid Testing...")
-startEmulator()
 #lifecycle event sequences to trigger
 #les=["doc","bf","stai"]
 les=["doc"]
 #length of lifecycle event sequences to trigger
 #nevent=[1,2,10]
 nevent=[1]
-#nevent=[2]
 # wait time
-#wtime=[1,2,5];
-wtime=[5];
+#wtime=[1,2,5]
+wtime=[1]
 os.popen("adb devices")
 
 for t in wtime:
