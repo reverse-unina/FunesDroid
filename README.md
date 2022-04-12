@@ -1,5 +1,6 @@
 FunesDroid
 
+
 The goal of the FunesDroid tool is to check whether the Activity classes of an analyzed Android app expose or not memory leaks tied to the Activity lifecycle.
 
 FunesDroid is able to execute automatically the following test on the input apks:
